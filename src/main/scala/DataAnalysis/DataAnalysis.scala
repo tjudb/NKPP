@@ -8,6 +8,7 @@ import org.apache.spark.util.AccumulatorV2
 
 import java.io.File
 import java.util
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks.{break, breakable}
 
@@ -99,7 +100,12 @@ object DataAnalysis {
 //    true
 //  } else false
 
-  def processData(tri: DataFrame): Unit = {
+  // todo 定义表达式列表
+  var expreList: ListBuffer[ListBuffer[String]] = new ListBuffer[ListBuffer[String]]()
+  // todo 当前谓词的表达式
+  var _expre: ListBuffer[String] = new ListBuffer[String]()
+
+  def processData(tri: DataFrame, predsDF: DataFrame): Unit = {
     val rdfAnalysisList = new MyAccumulator
     _sc.register(rdfAnalysisList)
     // * data statis
@@ -108,6 +114,7 @@ object DataAnalysis {
     val triCount = tri.count()
     val preds = tri.select("pred").distinct().collect()
     // 必须把preds collect 才能避免并行
+
     preds.foreach(row => {
       val curpp = row.get(0).toString
       println("[Processing] " + curpp)
@@ -131,7 +138,7 @@ object DataAnalysis {
 //        dataStatis(starRES, curpp, predCount, triCount, rdfAnalysisList)
         // todo 保存
         saveNCI(starRES._1, starRES._2, starRES._3, curpp)
-        println("|------[SAVE DONE] ")
+        println("|------[Single-SAVE DONE] ")
         println("[END]============================")
 
       }else {
@@ -140,6 +147,51 @@ object DataAnalysis {
       }
     })
 
+    // exper
+    val _preds = predsDF.select("predID").distinct().map(_.toString().replace("[","").replace("]", "")).collect()
+    // path pool , 存储无法连接的谓词对
+    val _pathpool: mutable.Set[String] = mutable.Set("-")
+    experGenera(_preds.toSet)
+    println("[exper] " + expreList.size)
+    expreList.foreach(row => {
+      var pre = ""
+      var after = ""
+      if (row.size == 3) {
+        pre = row.apply(0) + "_" + row.apply(1)
+        after = row.apply(1) + "_" + row.apply(2)
+      } else {
+        pre = row.apply(0) + "_" + row.apply(1)
+        after = ""
+      }
+      val curpp = row.mkString("_")
+      println("[Processing] " + curpp)
+      if (_pathpool.contains(pre) || _pathpool.contains(after)) {
+        // todo: 不存在
+        println("|---[EXPER] " + curpp + ": no star")
+      } else {
+        val predDF = getTripleByPredEXPER(tri, curpp)
+        //      predDF.show(false)
+        if (checkStar(predDF)) {
+          // todo: 存在
+          val predCount = predDF.count()
+          println("[START]============================")
+          println("|---[EXPER] " + curpp + ": star")
+          val starSt = System.currentTimeMillis()
+          val starRES = getKleeneStar(predDF, curpp)
+          val starEnd = System.currentTimeMillis()
+          println("[KLEENE STAR TIME] " + (starEnd - starSt) + "ms")
+          println("|------[STAR RESULT] GET ")
+          println("|------[JOIN COUNT] " + starRES._2)
+          println("|------[KLEENE STAR TYPE] " + starRES._3)
+          saveNCI(starRES._1, starRES._2, starRES._3, curpp)
+          println("|------[EXPER-SAVE DONE] ")
+        }else {
+          _pathpool += pre
+          _pathpool += after
+          println("|---[EXPER] " + curpp + ": no star")
+        }
+      }
+    })
 //    val statisInfo = spark.createDataFrame(rdfAnalysisList.value, encoderSchema)
 //    statisInfo.orderBy("pred").show(false)
 //    statisInfo.write.parquet(Configuration.Configuration.outputDIR)
@@ -212,6 +264,38 @@ object DataAnalysis {
     println("[ANALYSIS TIME] " + (analyEnd - analySt) + "ms")
   }
 
+  /**
+   * 生成谓词表达式生成，表达式长度 <=3
+   */
+  def experGenera(preds: collection.Set[String]): ListBuffer[ListBuffer[String]] = {
+
+    preds.foreach(pred => {
+      _expre.clear()
+      experDFS(preds, pred)
+    })
+    expreList
+  }
+
+  /**
+   * 从当前谓词出发，递归得到表达式
+   *
+   * @param preds
+   * @return
+   */
+  def experDFS(preds: collection.Set[String], curPred: String): Unit = {
+    _expre.append(curPred)
+    if (_expre.length >= 2) {
+      val temp: ListBuffer[String] = _expre.clone() // 深拷贝
+      expreList.append(temp)
+    }
+    if (_expre.length >= 3) return
+    preds.foreach(pred => {
+      if (!_expre.contains(pred)) {
+        experDFS(preds, pred)
+        _expre = _expre.dropRight(1)
+      }
+    })
+  }
   def checkPred(pred: String): Boolean = {
     // uobm
 //    val lis: List[String] = List("5") // long path
@@ -261,6 +345,29 @@ object DataAnalysis {
     ptri
   }
 
+  // 得到当前谓词的triple表
+  def getTripleByPredEXPER(tri: DataFrame, pp: String): DataFrame = {
+    val pstr = pp.split("_")
+    if (pstr.size == 2) {
+      val left = tri.select("sub", "obj").where($"pred" === pp.charAt(0))
+      val right = tri.select("sub", "obj").where($"pred" === pp.charAt(1))
+      left.createOrReplaceTempView("left")
+      right.createOrReplaceTempView("right")
+      //      spark.sql("select * from left").show(false)
+      spark.sql("select left.sub as sub, right.obj as obj from left inner join right on left.obj = right.sub").toDF()
+    } else {
+      val left = tri.select("sub", "obj").where($"pred" === pp.charAt(0))
+      val mid = tri.select("sub", "obj").where($"pred" === pp.charAt(1))
+      val right = tri.select("sub", "obj").where($"pred" === pp.charAt(2))
+      left.createOrReplaceTempView("left")
+      mid.createOrReplaceTempView("mid")
+      right.createOrReplaceTempView("right")
+      //      spark.sql("select * from left").show(false)
+      spark.sql("select left.sub as sub, right.obj as obj from left, mid, right where left.obj = mid.sub and mid.obj = right.sub").toDF()
+    }
+    //    val ptri = tri.select("sub", "obj").where($"pred" === pp)
+    //    ptri
+  }
   // 2023-08-14
   // curTri: 当然谓词的三元组 [sub, obj]
   // pp: 谓词 [id]

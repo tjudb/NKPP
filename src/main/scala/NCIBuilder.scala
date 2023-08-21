@@ -16,7 +16,7 @@ object NCIBuilder {
     val outputDIR = "/Users/luyang/Documents/project/db/NCI_INDEX/RESULT/UOBM1"
     //     todo: read triple (get data)
 //    val triDF = DataProcess.DataReader.getTriples(args(0))
-//    val predsDF = DataProcess.DataReader.getPreds(args(1))
+//    val predsDF = Da0taProcess.DataReader.getPreds(args(1))
 //    val outputDIR = args(2)
 //    Configuration.Configuration.loadUserSettings(args(0), args(1), args(2))
 
@@ -28,7 +28,7 @@ object NCIBuilder {
     // todo: DataAnalysis (get pred, group by pred, join)
     // 目前的方法：处理图+路径的会存在冗余
     val st = System.currentTimeMillis()
-    DataAnalysis.DataAnalysis.processData(triDF)
+    DataAnalysis.DataAnalysis.processData(triDF, predsDF)
     val end = System.currentTimeMillis()
     println("[DONE] " + (end - st) + "ms")
 
