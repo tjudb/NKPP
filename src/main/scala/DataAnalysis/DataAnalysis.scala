@@ -183,7 +183,7 @@ object DataAnalysis {
           println("|------[STAR RESULT] GET ")
           println("|------[JOIN COUNT] " + starRES._2)
           println("|------[KLEENE STAR TYPE] " + starRES._3)
-          saveNCI(starRES._1, starRES._2, starRES._3, curpp)
+          saveNCI(starRES._1, starRES._2, starRES._3, curpp, true)
           println("|------[EXPER-SAVE DONE] ")
         }else {
           _pathpool += pre
@@ -202,9 +202,15 @@ object DataAnalysis {
 //    statisInfo.select("pred", "cirExist", "cirNum").filter(statisInfo.col("cirExist")).toDF().distinct().show(false)
   }
 
-  def saveNCI(res: DataFrame, len: Long, cir: Boolean, pp: String): Unit = {
-    res.select("value").write.parquet(Configuration.Configuration.outputDIR + File.separator
-      + pp + "_" + cir + "_" + len + File.separator + "NCI")
+  def saveNCI(res: DataFrame, len: Long, cir: Boolean, pp: String, exper: Boolean = false): Unit = {
+    if(!exper) {
+      res.select("value").write.parquet(Configuration.Configuration.outputDIR + File.separator
+        + pp + "_" + cir + "_" + len + File.separator + "NCI")
+    }else {
+      res.select("value").write.parquet(Configuration.Configuration.outputDIR + File.separator
+        + pp + "-" + cir + "-" + len + File.separator + "NCI")
+    }
+
     println("|------[Path] " + res.count())
   }
 
