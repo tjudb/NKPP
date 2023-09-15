@@ -6,7 +6,7 @@ DS_Store/
 *.DS_Store
 Benchmark/
 RESULT/
-uobm1/
-watdiv/
+uobm1/*
+watdiv/*
 project/
 spark-warehouse/
