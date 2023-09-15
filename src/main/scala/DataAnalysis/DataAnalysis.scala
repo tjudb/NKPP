@@ -579,7 +579,7 @@ object DataAnalysis {
 //     .createOrReplaceTempView("_right")
 //    println("---[_right] ")
 //    spark.sql("select * from _right").toDF().show(false)
-
+    // in 会导致数据倾斜
     res = spark.sql("select _left.sub, _left.obj from _left join stTable on _left.sub = stTable.sub").toDF()
     res.createOrReplaceTempView("_left")
     res = spark.sql("select _left.sub, _left.obj from _left where _left.obj not in (select obj from endTable)").toDF()

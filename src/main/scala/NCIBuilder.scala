@@ -11,9 +11,9 @@ object NCIBuilder {
   val _sc: SparkContext = spark.sparkContext
   import spark.implicits._
   def main(args: Array[String]): Unit = {
-    val inputTriFile = "/Users/luyang/Documents/project/db/NCI_INDEX/uobm1/uobm1/uobm1.tri"
-    val inputPredFile = "/Users/luyang/Documents/project/db/NCI_INDEX/uobm1/uobm1/uobm1.p"
-    val outputDIR = "/Users/luyang/Documents/project/db/NCI_INDEX/RESULT/UOBM1"
+    val inputTriFile = "F:\\dbproject\\NCI_MAPPING\\data\\uobm100\\uobm100.tri"
+    val inputPredFile = "F:\\dbproject\\NCI_MAPPING\\data\\uobm100\\uobm100.p"
+    val outputDIR = "F:\\dbproject\\NCI_INDEX\\RESULT\\UOBM100"
     //     todo: read triple (get data)
 //    val triDF = DataProcess.DataReader.getTriples(args(0))
 //    val predsDF = Da0taProcess.DataReader.getPreds(args(1))

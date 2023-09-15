@@ -25,9 +25,12 @@ object Configuration {
     Logger.getLogger("org").setLevel(Level.WARN)
     Logger.getLogger("akka").setLevel(Level.WARN)
     val conf = new SparkConf()
-      .setAppName("NCI_INDEX_DataAnalysis")
+      .setAppName("NCI_INDEX")
       .setMaster("local[*]")
-
+      .set("spark.sql.shuffle.partitions", "12")
+      .set("spark.default.parallelism", "24")
+      .set("spark.driver.memory", "15G")
+      .set("spark.executor.memory", "20G")
     conf
   }
 
