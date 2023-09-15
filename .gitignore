@@ -2,11 +2,11 @@ target/
 .idea/
 .bsp/
 DS_Store/
-*.iml
-*.DS_Store
 Benchmark/
 RESULT/
-uobm1/*
-watdiv/*
+uobm1/
+watdiv/
 project/
 spark-warehouse/
+*.iml
+*.DS_Store
