@@ -118,32 +118,39 @@ object DataAnalysis {
     preds.foreach(row => {
       val curpp = row.get(0).toString
       println("[Processing] " + curpp)
-      val predDF = getTripleByPred(tri, curpp)
-      if(checkStar(predDF)) {
-        // todo: 存在
+      // 还没有生成索引(单)[为了应对索引生成一半 但是程序崩溃的问题]
+      if (!check(curpp)) {
         val predDF = getTripleByPred(tri, curpp)
-        val predCount = predDF.count()
-        println("[START]============================")
-        println("|---[PRED] " + curpp + ": star")
-        println("|---[count curDF] " + predCount)
+        if (checkStar(predDF)) {
+          // 存在kleene
+          // todo: 存在
+          val predDF = getTripleByPred(tri, curpp)
+          val predCount = predDF.count()
+          println("[START]============================")
+          println("|---[PRED] " + curpp + ": star")
+          println("|---[count curDF] " + predCount)
 
-        val starSt = System.currentTimeMillis()
-        val starRES = getKleeneStar(predDF, curpp)
-        val starEnd = System.currentTimeMillis()
-        println("[KLEENE STAR TIME] " + (starEnd - starSt) + "ms")
-        println("|------[STAR RESULT] GET ")
-        println("|------[JOIN COUNT] " + starRES._2)
-        println("|------[KLEENE STAR TYPE] " + starRES._3)
-        // 【已经得到克林闭包结果了】
-//        dataStatis(starRES, curpp, predCount, triCount, rdfAnalysisList)
-        // todo 保存
-        saveNCI(starRES._1, starRES._2, starRES._3, curpp)
-        println("|------[Single-SAVE DONE] ")
-        println("[END]============================")
+          val starSt = System.currentTimeMillis()
+          val starRES = getKleeneStar(predDF, curpp)
+          val starEnd = System.currentTimeMillis()
+          println("[KLEENE STAR TIME] " + (starEnd - starSt) + "ms")
+          println("|------[STAR RESULT] GET ")
+          println("|------[JOIN COUNT] " + starRES._2)
+          println("|------[KLEENE STAR TYPE] " + starRES._3)
+          // 【已经得到克林闭包结果了】
+          //        dataStatis(starRES, curpp, predCount, triCount, rdfAnalysisList)
+          // todo 保存
+          saveNCI(starRES._1, starRES._2, starRES._3, curpp)
+          println("|------[Single-SAVE DONE] ")
+          println("[END]============================")
 
+        } else {
+          // todo: 不存在
+          println("|---[PRED] " + curpp + ": no star")
+        }
       }else {
-        // todo: 不存在
-        println("|---[PRED] " + curpp + ": no star")
+        // 存在
+        println("|---[found]")
       }
     })
 
@@ -200,6 +207,17 @@ object DataAnalysis {
 //    statisInfo.select("pred").distinct().show(false)
 //    println("[KLEENE STAR PREDS CIRCLE] ")
 //    statisInfo.select("pred", "cirExist", "cirNum").filter(statisInfo.col("cirExist")).toDF().distinct().show(false)
+  }
+
+  // 如果已经存在这个index文件就返回true
+  // 否则返回 false
+  def check(str: String): Boolean = {
+    // 得到当前文件夹下所有的文件名
+    val indexDIR = new File(Configuration.Configuration.outputDIR)
+    val files = indexDIR.listFiles()
+    if(files.map( file => file.getName.split("_").apply(0)).contains(str)){
+      true
+    }else false
   }
 
   def saveNCI(res: DataFrame, len: Long, cir: Boolean, pp: String, exper: Boolean = false): Unit = {

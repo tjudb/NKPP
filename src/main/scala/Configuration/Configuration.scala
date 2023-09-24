@@ -29,8 +29,8 @@ object Configuration {
       .setMaster("local[*]")
       .set("spark.sql.shuffle.partitions", "12")
       .set("spark.default.parallelism", "24")
-      .set("spark.driver.memory", "15G")
-      .set("spark.executor.memory", "20G")
+      .set("spark.driver.memory", "38G")
+      .set("spark.executor.memory", "38G")
     conf
   }
 
