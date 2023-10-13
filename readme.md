@@ -1,4 +1,1 @@
-
-input： 
-val inputTriFile = "/Users/luyang/Documents/project/db/NCI_INDEX/Benchmark/BeSEPPIgraph/BeSEPPIgraph.tri"
-val inputPredFile = "/Users/luyang/Documents/project/db/NCI_INDEX/Benchmark/BeSEPPIgraph/BeSEPPIgraph.p"
+## WWW24 - Kleene Closure Property Path Query Optimization  Based on Node Clustered Index
