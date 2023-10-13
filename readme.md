@@ -9,9 +9,7 @@
 </p>
 
 <p>
-  <b>
- 
-    The innovation of NKPP is the NCI indexing, which solves the core problem of path uncertainty in KPPQ by transforming an uncertain KPPQ into a deterministic one. We have made the code for NCI indexing publicly available so that the research community can better understand and apply our work.
+  <b>The innovation of NKPP is the NCI indexing, which solves the core problem of path uncertainty in KPPQ by transforming an uncertain KPPQ into a deterministic one. We have made the code for NCI indexing publicly available so that the research community can better understand and apply our work.
   </b>
 
 </p>
