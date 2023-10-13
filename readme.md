@@ -1,1 +1,1 @@
-## WWW24 - Kleene Closure Property Path Query Optimization  Based on Node Clustered Index
+## NKPP - Kleene Closure Property Path Query Optimization Based on Node Clustered Index
