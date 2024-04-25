@@ -1,0 +1,75 @@
+### BeSEPPI Query set
+Q218 (cyclic): 
+SELECT ?s ?o WHERE{?s <http://www.ppbenchmark.com/e+>* ?o .}
+Q219 (cyclic): 
+SELECT ?s ?o WHERE{?s <http://www.ppbenchmark.com/e+2>* ?o .}
+Q217 (path):  
+SELECT ?s ?o WHERE{?s <http://www.ppbenchmark.com/e+3>* ?o .}
+Q216 (path):  
+SELECT ?s ?o WHERE{?s <http://www.ppbenchmark.com/e+1>* ?o .}
+Q215 (predicate does not exist):  
+SELECT ?s ?o 
+    WHERE{?s <http://www.ppbenchmark.com/notExisting>* ?o .}
+Q214 (cyclic): 
+SELECT ?s ?o
+    WHERE{?s <http://www.ppbenchmark.com/eSelf>* ?o .}
+Q213 (path):  
+SELECT ?s ?o WHERE{?s <http://www.ppbenchmark.com/e6>* ?o .}
+
+
+
+### UOBM Query set
+PREFIX ubd: <http://semantics.crl.ibm.com/univ-bench-dl.owl>
+ 
+Q1（S-KPPQ short path): 
+SELECT ?s ?o WHERE{?s ubd:subOrganizationOf* ?o .}
+Q2（S-KPPQ long path):  
+SELECT ?s ?o WHERE{?s ubd:hasSameHomeTownWith* ?o .}
+Q3（S-KPPQ cyclic):  
+SELECT ?s ?o WHERE{?s ubd:isFriendOf* ?o .}
+Q4（E-KPPQ): 
+SELECT ?s ?o WHERE{?s (ubd:like/ubd:telephone)* ?o .}
+Q5（E-KPPQ):  
+SELECT ?s ?o WHERE{?s (ubd:love/ubd:isMemberOf/ubd:like)* ?o .}
+Q6（C-KPPQ): 
+SELECT ?s ?o WHERE{?s ubd:lastName/(ubd:like/ubd:telephone)* ?o .}
+Q7（C-KPPQ):  
+SELECT ?s ?o WHERE{?s ubd:like*/ubd:subOrganizationOf* ?o .}
+Q8（C-KPPQ): 
+SELECT ?s ?o WHERE{?s ubd:like*/ubd:subOrganizationOf ?o .}
+Q9（C-KPPQ):  
+SELECT ?s ?o 
+    WHERE{?s ubd:isFriendOf/ubd:like/ubd:subOrganizationOf* ?o .}
+
+
+### DBpedia Query set
+PREFIX dbpowl:        <http://dbpedia.org/ontology/>
+PREFIX dbpprop:       <http://dbpedia.org/property/>
+PREFIX dbpprop:power:  <http://dbpedia.org/property/power/>
+
+Q1 (S-KPPQ short path): 
+SELECT ?s ?o WHERE{?s dbpprop:date* ?o .}
+Q2 (S-KPPQ short path): 
+SELECT ?s ?o WHERE{?s dbpprop:supporters* ?o .}
+Q3 (S-KPPQ long path): 
+SELECT ?s ?o WHERE{?s dbpprop:allies* ?o .}
+Q4 (S-KPPQ long path):  
+SELECT ?s ?o WHERE{?s dbpprop:power:massMain* ?o .} 
+Q5 (S-KPPQ cyclic): 
+SELECT ?s ?o WHERE{?s dbpprop:dialects* ?o .}
+Q6 (S-KPPQ cyclic): 
+SELECT ?s ?o WHERE{?s dbpprop:origin* ?o .}
+Q7 (S-KPPQ cyclic): 
+SELECT ?s ?o WHERE{?s dbpprop:team(s)_* ?o .}
+Q8 (E-KPPQ):  
+SELECT ?s ?o WHERE{?s (dbpprop:birthPlace/dbpprop:knownFor)* ?o .}
+Q9 (E-KPPQ):  
+SELECT ?s ?o 
+    WHERE{?s (dbpprop:knownFor/dbpprop:birthPlace/dbpowl:isPartOf)* ?o .}
+Q10 (C-KPPQ): 
+SELECT ?s ?o WHERE{?s dbpprop:knownFor*/dbpprop:birthPlace ?o .}
+Q11 (C-KPPQ):  
+SELECT ?s ?o 
+    WHERE{?s dbpprop:knownFor/dbpprop:birthPlace/dbpowl:location* ?o .}
+Q12 (C-KPPQ):  
+SELECT ?s ?o WHERE{?s dbpprop:knownFor*/dbpprop:birthPlace* ?o .}
